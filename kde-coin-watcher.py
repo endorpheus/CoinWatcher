@@ -125,6 +125,7 @@ class CryptoTicker(QWidget):
         about_dialog.setWindowIcon(self.custom_icon)
         
         layout = QVBoxLayout()
+        layout.setContentsMargins(80, 10, 80, 10)  # Left, Top, Right, Bottom
         layout.setSpacing(10)  # Add some spacing between widgets
         
         # Add icon
