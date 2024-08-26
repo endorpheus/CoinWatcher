@@ -1,9 +1,9 @@
 import sys
 import os
 import requests
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSlider, QMenu, QSystemTrayIcon
-from PyQt6.QtGui import QIcon, QAction, QPixmap
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import QApplication, QWidget, QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSlider, QMenu, QSystemTrayIcon, QSizePolicy
+from PyQt6.QtGui import QIcon, QAction, QPixmap, QCursor, QScreen
+from PyQt6.QtCore import Qt, QTimer, QPoint
 
 class CryptoTicker(QWidget):
     def __init__(self):
@@ -96,25 +96,67 @@ class CryptoTicker(QWidget):
             self.show_menu()
 
     def show_menu(self):
-        # Get the geometry of the system tray icon
-        geometry = self.tray_icon.geometry()
-        # Show the menu at the top left of the icon (which will appear beneath the icon)
-        self.tray_menu.popup(geometry.topLeft())
+        # Get the global position of the cursor
+        cursor_pos = QCursor.pos()
+        
+        # Get the available screen geometry
+        screen = QApplication.primaryScreen()
+        screen_geometry = screen.availableGeometry()
+        
+        # Calculate the ideal position for the menu
+        ideal_pos = QPoint(cursor_pos.x(), cursor_pos.y())
+        
+        # Adjust if the menu would go off the right edge of the screen
+        menu_width = self.tray_menu.sizeHint().width()
+        if ideal_pos.x() + menu_width > screen_geometry.right():
+            ideal_pos.setX(screen_geometry.right() - menu_width)
+        
+        # Adjust if the menu would go off the bottom edge of the screen
+        menu_height = self.tray_menu.sizeHint().height()
+        if ideal_pos.y() + menu_height > screen_geometry.bottom():
+            ideal_pos.setY(ideal_pos.y() - menu_height)
+        
+        # Show the menu at the calculated position
+        self.tray_menu.popup(ideal_pos)
 
     def show_about(self):
-        about_menu = QMenu("About KDE Coin Watcher")
+        about_dialog = QDialog(self)
+        about_dialog.setWindowTitle("About KDE Coin Watcher")
+        about_dialog.setWindowIcon(self.custom_icon)
         
-        # Add icon to the about menu
-        icon_action = QAction(self.custom_icon, "", self)
-        icon_action.setEnabled(False)
-        about_menu.addAction(icon_action)
+        layout = QVBoxLayout()
+        layout.setSpacing(10)  # Add some spacing between widgets
         
+        # Add icon
+        icon_label = QLabel()
+        icon_label.setPixmap(self.custom_icon.pixmap(64, 64))
+        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignHCenter)
+        
+        # Add about text
         about_text = "KDE Coin Watcher\nRyon Shane Hall\nendorpheus@gmail.com\nversion 1.0"
         for line in about_text.split('\n'):
-            about_menu.addAction(line).setEnabled(False)
+            label = QLabel(line)
+            label.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+            layout.addWidget(label)
         
-        # Position the about menu relative to the tray icon
-        about_menu.exec(self.tray_icon.geometry().topLeft())
+        about_dialog.setLayout(layout)
+        
+        # Set size policy to adjust to content
+        about_dialog.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        
+        # Adjust size to fit content
+        about_dialog.adjustSize()
+        
+        # Center the dialog on the screen
+        screen = QApplication.primaryScreen()
+        if screen:
+            center_point = screen.availableGeometry().center()
+            frame_geometry = about_dialog.frameGeometry()
+            frame_geometry.moveCenter(center_point)
+            about_dialog.move(frame_geometry.topLeft())
+        
+        # Show the dialog
+        about_dialog.exec()
 
     def update_ticker(self):
         self.ticker = self.ticker_input.text().lower()
