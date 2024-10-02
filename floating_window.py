@@ -1,7 +1,7 @@
 import os
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PyQt6.QtGui import QIcon, QPainter, QColor
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtGui import QIcon, QPainter, QColor, QFontMetrics
+from PyQt6.QtCore import Qt, QPoint, QSize
 
 class FloatingPriceWindow(QWidget):
     def __init__(self, parent=None):
@@ -23,7 +23,7 @@ class FloatingPriceWindow(QWidget):
         self.dragging = False
         self.offset = QPoint()
 
-        # Set the window icon, TODO add fallback image if not found
+        # Set the window icon
         self.setWindowIcon(QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'coin.png')))
 
     def paintEvent(self, event):
@@ -48,6 +48,7 @@ class FloatingPriceWindow(QWidget):
 
     def update_price(self, price_text):
         self.price_label.setText(price_text)
+        self.adjustSize()
 
     def set_background_color(self, color, opacity=0.8):
         self.background_color = QColor(color)
@@ -57,3 +58,13 @@ class FloatingPriceWindow(QWidget):
     def set_text_color(self, color):
         self.text_color = QColor(color)
         self.price_label.setStyleSheet(f"color: {self.text_color.name()}; font-size: 16px;")
+
+    def sizeHint(self):
+        fm = QFontMetrics(self.price_label.font())
+        text_width = fm.horizontalAdvance(self.price_label.text())
+        text_height = fm.height()
+        return QSize(text_width + 40, text_height + 20)  # Add some padding
+
+    def adjustSize(self):
+        super().adjustSize()
+        self.setFixedSize(self.sizeHint())

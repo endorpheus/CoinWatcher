@@ -9,7 +9,7 @@ from PyQt6.QtGui import QIcon, QAction, QPixmap, QCursor, QColor, QPainter, QMou
 from PyQt6.QtCore import Qt, QTimer, QPoint
 from floating_window import FloatingPriceWindow
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 class ColorSelectionDialog(QDialog):
     def __init__(self, parent=None, bg_color=None, fg_color=None):
@@ -17,39 +17,6 @@ class ColorSelectionDialog(QDialog):
         self.bg_color = bg_color or QColor(75, 0, 130)
         self.fg_color = fg_color or QColor(255, 255, 255)
         self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        bg_layout = QHBoxLayout()
-        bg_label = QLabel("Background Color:")
-        self.bg_button = QPushButton()
-        self.bg_button.setStyleSheet(f"background-color: {self.bg_color.name()}; min-width: 100px; min-height: 30px;")
-        self.bg_button.clicked.connect(lambda: self.choose_color('bg'))
-        bg_layout.addWidget(bg_label)
-        bg_layout.addWidget(self.bg_button)
-        layout.addLayout(bg_layout)
-
-        fg_layout = QHBoxLayout()
-        fg_label = QLabel("Foreground Color:")
-        self.fg_button = QPushButton()
-        self.fg_button.setStyleSheet(f"background-color: {self.fg_color.name()}; min-width: 100px; min-height: 30px;")
-        self.fg_button.clicked.connect(lambda: self.choose_color('fg'))
-        fg_layout.addWidget(fg_label)
-        fg_layout.addWidget(self.fg_button)
-        layout.addLayout(fg_layout)
-
-        buttons = QHBoxLayout()
-        ok_button = QPushButton("OK")
-        ok_button.clicked.connect(self.accept)
-        cancel_button = QPushButton("Cancel")
-        cancel_button.clicked.connect(self.reject)
-        buttons.addWidget(ok_button)
-        buttons.addWidget(cancel_button)
-        layout.addLayout(buttons)
-
-        self.setLayout(layout)
-        self.setWindowTitle("Choose Colors")
 
     def choose_color(self, color_type):
         color = QColorDialog.getColor()
@@ -70,8 +37,6 @@ class CryptoTicker(QWidget):
         self.previous_price = None
         self.favorite_tickers = self.load_favorite_tickers()
         self.floating_window = None
-        self.default_window_width = 250
-        self.default_window_height = 40
         self.initUI()
 
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
@@ -79,7 +44,7 @@ class CryptoTicker(QWidget):
         self.offset = QPoint()
 
     def initUI(self):
-        self.icon_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'coin.png')
+        self.icon_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'icons/coin.png')
         self.custom_icon = QIcon(self.icon_path)
 
         layout = QVBoxLayout()
@@ -109,8 +74,9 @@ class CryptoTicker(QWidget):
         fav_buttons_layout.addWidget(remove_fav_button)
         layout.addLayout(fav_buttons_layout)
 
+        # slider layout 2
         interval_layout = QVBoxLayout()
-        interval_label = QLabel("Interval (seconds):")
+        #interval_label = QLabel(f"Interval: {self.interval} seconds")
         self.interval_slider = QSlider(Qt.Orientation.Horizontal)
         self.interval_slider.setMinimum(30)
         self.interval_slider.setMaximum(1500)
@@ -119,27 +85,13 @@ class CryptoTicker(QWidget):
         self.interval_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.interval_slider.valueChanged.connect(self.update_interval)
 
-        self.slider_value_label = QLabel(f"Current interval: {self.interval} seconds")
-
-        interval_layout.addWidget(interval_label)
-        interval_layout.addWidget(self.interval_slider)
+        self.slider_value_label = QLabel(f"Interval: {self.interval} seconds")
+        
         interval_layout.addWidget(self.slider_value_label)
+        #interval_layout.addWidget(interval_label)
+        interval_layout.addWidget(self.interval_slider)
+        
         layout.addLayout(interval_layout)
- 
-        size_layout = QHBoxLayout()
-        width_label = QLabel("Default Floating Window Width:")
-        self.width_input = QLineEdit(str(self.default_window_width))
-        self.width_input.editingFinished.connect(self.update_default_window_size)
-        height_label = QLabel("Default Floating Window Height:")
-        self.height_input = QLineEdit(str(self.default_window_height))
-        self.height_input.editingFinished.connect(self.update_default_window_size)
-
-        size_layout.addWidget(width_label)
-        size_layout.addWidget(self.width_input)
-        size_layout.addWidget(height_label)
-        size_layout.addWidget(self.height_input)
-
-        layout.addLayout(size_layout)
 
         threshold_layout = QHBoxLayout()
         low_label = QLabel("Low Threshold:")
@@ -174,15 +126,6 @@ class CryptoTicker(QWidget):
         self.timer.start(self.interval * 1000)
 
         self.update_price()
-
-    def update_default_window_size(self):
-        try:
-            self.default_window_width = max(int(self.width_input.text()), 250)
-            self.default_window_height = max(int(self.height_input.text()), 40)
-            if self.floating_window and self.ticker not in self.favorite_tickers:
-                self.update_floating_window()
-        except ValueError:
-            print("Invalid size value. Please enter numeric values.")
 
     def setup_tray_icon(self):
         self.tray_icon = QSystemTrayIcon(self)
@@ -251,8 +194,6 @@ class CryptoTicker(QWidget):
                 self.favorite_tickers[ticker] = {
                     'color': color_dialog.bg_color.name(),
                     'text_color': color_dialog.fg_color.name(),
-                    'width': self.default_window_width,
-                    'height': self.default_window_height,
                     'low_threshold': None,
                     'high_threshold': None
                 }
@@ -275,13 +216,6 @@ class CryptoTicker(QWidget):
             color_button.clicked.connect(lambda: self.change_colors(ticker))
             layout.addWidget(color_button)
 
-            width_input = QLineEdit(str(data['width']))
-            height_input = QLineEdit(str(data['height']))
-            layout.addWidget(QLabel("Width:"))
-            layout.addWidget(width_input)
-            layout.addWidget(QLabel("Height:"))
-            layout.addWidget(height_input)
-
             low_threshold_input = QLineEdit(str(data['low_threshold']) if data['low_threshold'] else "")
             high_threshold_input = QLineEdit(str(data['high_threshold']) if data['high_threshold'] else "")
             layout.addWidget(QLabel("Low Threshold:"))
@@ -290,7 +224,7 @@ class CryptoTicker(QWidget):
             layout.addWidget(high_threshold_input)
 
             save_button = QPushButton("Save")
-            save_button.clicked.connect(lambda: self.save_favorite_changes(ticker, width_input.text(), height_input.text(), low_threshold_input.text(), high_threshold_input.text(), dialog))
+            save_button.clicked.connect(lambda: self.save_favorite_changes(ticker, low_threshold_input.text(), high_threshold_input.text(), dialog))
             layout.addWidget(save_button)
 
             dialog.setLayout(layout)
@@ -309,26 +243,7 @@ class CryptoTicker(QWidget):
         self.ticker_input.setText(ticker)
         self.update_ticker()
         if self.floating_window:
-            data = self.favorite_tickers[ticker]
-            self.floating_window.resize(data['width'], data['height'])
-
-    # def change_color(self, ticker, color_type):
-    #     color_dialog = QColorDialog(self)
-    #     if color_type == 'background':
-    #         color_dialog.setWindowTitle("Select Background Color")
-    #     else:
-    #         color_dialog.setWindowTitle("Select Foreground Color")
-        
-    #     color = color_dialog.getColor()
-    #     if color.isValid():
-    #         if color_type == 'background':
-    #             self.favorite_tickers[ticker]['color'] = color.name()
-    #         elif color_type == 'foreground':
-    #             self.favorite_tickers[ticker]['text_color'] = color.name()
-    #         self.update_favorites_list()
-    #         self.save_favorite_tickers()
-    #         if self.floating_window and self.ticker == ticker:
-    #             self.update_floating_window()
+            self.update_floating_window()
 
     def change_colors(self, ticker):
         data = self.favorite_tickers[ticker]
@@ -341,12 +256,8 @@ class CryptoTicker(QWidget):
             if self.floating_window and self.ticker == ticker:
                 self.update_floating_window()
 
-    def save_favorite_changes(self, ticker, width, height, low_threshold, high_threshold, dialog):
+    def save_favorite_changes(self, ticker, low_threshold, high_threshold, dialog):
         try:
-            width = int(width)
-            height = int(height)
-            self.favorite_tickers[ticker]['width'] = width
-            self.favorite_tickers[ticker]['height'] = height
             self.favorite_tickers[ticker]['low_threshold'] = float(low_threshold) if low_threshold else None
             self.favorite_tickers[ticker]['high_threshold'] = float(high_threshold) if high_threshold else None
             self.save_favorite_tickers()
@@ -421,8 +332,8 @@ class CryptoTicker(QWidget):
 
     def update_interval(self):
         self.interval = self.interval_slider.value()
-        self.slider_value_label.setText(f"Current interval: {self.interval} seconds")
-        self.timer.setInterval(self.interval * 1000)
+        self.slider_value_label.setText(f"Interval: {self.interval} seconds")
+        self.timer.setInterval(self.interval * 1000)    
 
     def update_thresholds(self):
         try:
@@ -493,22 +404,11 @@ class CryptoTicker(QWidget):
             if self.ticker in self.favorite_tickers:
                 data = self.favorite_tickers[self.ticker]
                 self.floating_window.set_background_color(data['color'])
-                self.floating_window.set_text_color(data.get('text_color', '#FFFFFF'))  # Default to white if not set
-                self.floating_window.resize(data['width'], data['height'])
+                self.floating_window.set_text_color(data.get('text_color', '#FFFFFF'))
             else:
                 self.floating_window.set_background_color(QColor(75, 0, 130))
                 self.floating_window.set_text_color('#FFFFFF')
-                self.floating_window.resize(self.default_window_width, self.default_window_height)
             self.floating_window.update_price(self.price_action.text())
-
-    def update_floating_window_size(self):
-        try:
-            self.floating_window_width = max(int(self.width_input.text()), 250)
-            self.floating_window_height = max(int(self.height_input.text()), 40)
-            if self.floating_window:
-                self.floating_window.resize(self.floating_window_width, self.floating_window_height)
-        except ValueError:
-            print("Invalid size value. Please enter numeric values.")
 
     def toggle_floating_window(self):
         if self.floating_window is None:
