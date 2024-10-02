@@ -39,13 +39,13 @@ pip install PyQt6 requests
 4.  Run the application using the following command:
 
 ```bash
-python kde-coin-watcher.py
+python coin_watcher.py
 ```
 
 ###  Usage:
 
 * The application will minimize itself to the system tray upon launch.
-* Right-click on the system tray icon to access the menu.
+* Click on the system tray icon to access the menu.
 * Select "Settings" to open the configuration window.
     * Change the ticker symbol in the input field to track a different cryptocurrency. 
     * Use the slider to adjust the update interval (in seconds).
@@ -64,6 +64,7 @@ You shouldn't really need an API key to use this, but I'm sure CoinGecko would a
 * A top ten movers list might be a good bit of info.
 * Of course, having multiple currencies set would be handy for those diversified DCAers.
 * If possible it would be great to show candle graphs.
+* Anything not mentioned here is likely in the ![TODO](TODO/TODO.md) file. 
 
 Who knows if we'll ever get to this, but it's fun to toss around.
 
