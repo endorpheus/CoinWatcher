@@ -10,10 +10,11 @@ class FloatingPriceWindow(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         
         self.background_color = QColor(75, 0, 130, 204)  # Default color
+        self.text_color = QColor(255, 255, 255)  # Default text color (white)
 
         layout = QVBoxLayout()
         self.price_label = QLabel()
-        self.price_label.setStyleSheet("color: white; font-size: 16px;")
+        self.price_label.setStyleSheet(f"color: {self.text_color.name()}; font-size: 16px;")
         self.price_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.price_label)
 
@@ -53,5 +54,6 @@ class FloatingPriceWindow(QWidget):
         self.background_color.setAlphaF(opacity)
         self.update()
 
-    def set_size(self, width, height):
-        self.setFixedSize(width, height)
+    def set_text_color(self, color):
+        self.text_color = QColor(color)
+        self.price_label.setStyleSheet(f"color: {self.text_color.name()}; font-size: 16px;")

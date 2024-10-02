@@ -2,6 +2,7 @@
 
 ## CoinWatcher Ideas
 
+- [ ] fix the floating window class to catch a parameter for width and height user preferences settings
 - [ ] add support for multiple exchanges
 - [ ] fix missing icons
 - [ ] move icons to icons folder
