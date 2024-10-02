@@ -18,6 +18,39 @@ class ColorSelectionDialog(QDialog):
         self.fg_color = fg_color or QColor(255, 255, 255)
         self.initUI()
 
+    def initUI(self):
+        layout = QVBoxLayout()
+
+        bg_layout = QHBoxLayout()
+        bg_label = QLabel("Background Color:")
+        self.bg_button = QPushButton()
+        self.bg_button.setStyleSheet(f"background-color: {self.bg_color.name()}; min-width: 100px; min-height: 30px;")
+        self.bg_button.clicked.connect(lambda: self.choose_color('bg'))
+        bg_layout.addWidget(bg_label)
+        bg_layout.addWidget(self.bg_button)
+        layout.addLayout(bg_layout)
+
+        fg_layout = QHBoxLayout()
+        fg_label = QLabel("Foreground Color:")
+        self.fg_button = QPushButton()
+        self.fg_button.setStyleSheet(f"background-color: {self.fg_color.name()}; min-width: 100px; min-height: 30px;")
+        self.fg_button.clicked.connect(lambda: self.choose_color('fg'))
+        fg_layout.addWidget(fg_label)
+        fg_layout.addWidget(self.fg_button)
+        layout.addLayout(fg_layout)
+
+        buttons = QHBoxLayout()
+        ok_button = QPushButton("OK")
+        ok_button.clicked.connect(self.accept)
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        buttons.addWidget(ok_button)
+        buttons.addWidget(cancel_button)
+        layout.addLayout(buttons)
+
+        self.setLayout(layout)
+        self.setWindowTitle("Choose Colors")
+
     def choose_color(self, color_type):
         color = QColorDialog.getColor()
         if color.isValid():

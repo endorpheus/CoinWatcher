@@ -2,7 +2,8 @@
 
 ## CoinWatcher Ideas
 
-- [ ] add support for "last used" ticker on startup
+- [ ] add real color overlay to tray icon based on ticker color
+- [ ] ignore the timer and just call the API when a new crypto coin is selected
 - [X] fix slider labels
 - [X] fix redundancies
 - [ ] add support for multiple exchanges
