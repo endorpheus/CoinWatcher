@@ -2,12 +2,15 @@
 
 ## CoinWatcher Ideas
 
+- [ ] right click menu on floater for specific ticker
+    - [ ] searchbox?
+- [X] added quick change to ticker symbol, and update floating window
 - [ ] add real color overlay to tray icon based on ticker color
-- [ ] ignore the timer and just call the API when a new crypto coin is selected
+- [X] ignore the timer and just call the API when a new crypto coin is selected, remember they will throttle too many calls in a short period of time.  It will sort itself in a minute or so.
 - [X] fix slider labels
-- [X] fix redundancies
+- [X] fix redundancies with crypto_ticker class (it was bad...)
 - [ ] add support for multiple exchanges
-- [ ] fix missing icons
+- [ ] fix missing icons, low priority
 - [X] move icons to icons folder
 - [ ] add more granularity:
     - price precision (like sub-cent amounts, i.e. Shiba-inu: ~0.000019)
