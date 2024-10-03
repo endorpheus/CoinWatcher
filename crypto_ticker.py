@@ -301,7 +301,15 @@ class CryptoTicker(QWidget):
             print("Invalid input. Please enter numeric values.")
 
     def tray_icon_activated(self, reason):
-        if reason in (QSystemTrayIcon.ActivationReason.Trigger, QSystemTrayIcon.ActivationReason.Context):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            tickers = list(self.favorite_tickers.keys())
+            current_index = tickers.index(self.ticker)
+            next_index = (current_index + 1) % len(tickers)
+            self.ticker = tickers[next_index]
+            self.ticker_input.setText(self.ticker)
+            self.update_price()
+            self.update_floating_window()
+        elif reason == QSystemTrayIcon.ActivationReason.Context:
             self.show_menu()
 
     def show_menu(self):
